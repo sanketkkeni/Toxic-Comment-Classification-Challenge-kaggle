@@ -1,5 +1,15 @@
 # Sanket Keni 
+'''
+CV score for class toxic is 0.9682470069323074
+CV score for class severe_toxic is 0.9872657124996594
+CV score for class obscene is 0.9843951465629428
+CV score for class threat is 0.9810181759466508
+CV score for class insult is 0.9767931386642288
+CV score for class identity_hate is 0.9730722219508444
+Total CV score is 0.9784652337594388
 
+Kaggle - 0.9738
+'''
 import numpy as np
 import pandas as pd
 from playsound import playsound
