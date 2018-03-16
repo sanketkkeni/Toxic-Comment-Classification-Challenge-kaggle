@@ -1,15 +1,17 @@
 # Sanket Keni 
 '''
-CV score for class obscene is 0.9924251410593588
-CV score for class threat is 0.9810178204032552
-CV score for class insult is 0.9767931587450045
-CV score for class identity_hate is 0.9730725188729847
-Total CV score is 0.9798035734017961
-Public LB- kaggle - 0.9748
+CV score for class toxic is 0.9686084660150955
+CV score for class severe_toxic is 0.9871819724671885
+CV score for class obscene is 0.9925029450044938
+CV score for class threat is 0.9806019327200612
+CV score for class insult is 0.9769709557584437
+CV score for class identity_hate is 0.9730129481196328
+Total CV score is 0.9798132033474859
+Public LB - 0.9752
 '''
-
 import numpy as np
 import pandas as pd
+import nltk
 from playsound import playsound
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -17,20 +19,103 @@ from sklearn.linear_model import Ridge
 from sklearn.model_selection import cross_val_score
 from scipy.sparse import hstack
 import timeit
+import re
+
+stemmer = nltk.stem.snowball.SnowballStemmer('english')
 
 # notify when code has completed execution
 def audio():
     playsound('C:\\Users\\Sanket Keni\\Music\\gang.mp3')
+'''
+def clean(comment):
+    comment=comment.lower()
+    comment=re.sub("\\n"," ",comment)
+    comment=re.sub("\d{1,}","",comment)
+    comment=re.sub("\(.*?\)","",comment)
+    comment=re.sub("\"|:|@|,|\/|\=|;|\.|\'|\?|\!|\||\+|\~|\-|\#"," ",comment)
+    comment=re.sub("\.{1,}",".",comment)
+    comment=re.sub("\[.*?\]","",comment)
+    comment=re.sub("www\S+","",comment)
+    comment=re.sub("\_"," ",comment)
+    comment=re.sub("http","",comment)
+    comment=re.sub("\s+"," ",comment)
+    return comment
+
+def stem_and_stopword_filter(text, filter_list):    
+    return [stemmer.stem(word) for word in text.split() if word not in filter_list and len(word) > 2]
+
+stopwords = nltk.corpus.stopwords.words('english') + ['jmabel','chatspy','jpg','wikipedia','www']
+
+def stemmed(text):
+    words = stem_and_stopword_filter(text, stopwords)
+    clean_text=" ".join(words)
+    return clean_text    '''
+
+train = pd.read_csv('C:\\Users\\Sanket Keni\\Desktop\\Genesis\\toxic comment\\train.csv').fillna(' ')
+test = pd.read_csv('C:\\Users\\Sanket Keni\\Desktop\\Genesis\\toxic comment\\test.csv').fillna(' ')
+'''
+train['comment_text']=train['comment_text'].apply(lambda x :clean(x))
+test['comment_text']=test['comment_text'].apply(lambda x :clean(x))
+
+'''
+
+
+
+def cleaned(comment):
+    comment=comment.lower()
+    comment=re.sub("\\n"," ",comment)
+    comment=re.sub("\d{1,}","",comment)
+    comment=re.sub("\.{1,}",".",comment)
+    comment=re.sub("\:{1,}","",comment)
+    comment=re.sub("\;"," ",comment)
+    comment=re.sub("\""," ",comment)
+    comment=re.sub("\'"," ",comment)
+    '''comment=re.sub("\(.*?\)","",comment)
+    comment=re.sub("\"|:|@|,|\/|\=|;|\.|\'|\?|\!|\||\+|\~|\-|\#"," ",comment)
+    comment=re.sub("\.{1,}",".",comment)
+    comment=re.sub("\[.*?\]","",comment)
+    comment=re.sub("www\S+","",comment)
+    comment=re.sub("\_"," ",comment)
+    comment=re.sub("http","",comment)'''
+    comment=re.sub("\s+"," ",comment)
+    comment = comment.strip()
+    return comment
+
+'''
+l = list(train['comment_text'])
+
+l[:50]
+s = train['comment_text'][48]
+re.sub("\/"," ",s)
+d = "mdksc dsdj; == dck"
+re.sub("\=|;","",d)
+re.sub("http","",s)
+'''
+cleaned(s)
+df=train["comment_text"].apply(lambda x: len(re.findall("\s+'{2,}",str(x)))+1)
+
+
+
+
+train['comment_text']=train['comment_text'].apply(lambda x :cleaned(x))
+test['comment_text']=test['comment_text'].apply(lambda x :cleaned(x))
+
+
+
+
 
 
 class_names = ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']
 
-train = pd.read_csv('C:\\Users\\Sanket Keni\\Desktop\\Genesis\\toxic comment\\train.csv').fillna(' ')
-test = pd.read_csv('C:\\Users\\Sanket Keni\\Desktop\\Genesis\\toxic comment\\test.csv').fillna(' ')
+
+
+
 
 train_text = train['comment_text']
 test_text = test['comment_text']
 all_text = pd.concat([train_text, test_text])
+
+
 
 word_vectorizer = TfidfVectorizer(
     sublinear_tf=True,
