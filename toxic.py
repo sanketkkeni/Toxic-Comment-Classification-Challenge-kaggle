@@ -32,7 +32,10 @@ post_fields = {                       # Set POST fields here
 	"u" : url,
 	"k" : "***********"
 	}
-
+def notify():
+    request = Request(url, urlencode(post_fields).encode())
+    json = urlopen(request).read().decode()
+    print(json)
 #stemmer = nltk.stem.snowball.SnowballStemmer('english')
 
 # notify when code has completed execution
