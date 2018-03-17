@@ -2,13 +2,12 @@
 '''
 CV score for class toxic is 0.97531893271232
 CV score for class severe_toxic is 0.9882911811070457
-OBSCENE class
 CV score for class obscene is 0.9918359359724859
 CV score for class threat is 0.9871264302579318
 CV score for class insult is 0.9805883409571478
 CV score for class identity_hate is 0.9810203713351426
 Total CV score is 0.984030198723679
-Public LB - 0.9778
+Public LB - 0.9779
 '''
 import numpy as np
 import pandas as pd
