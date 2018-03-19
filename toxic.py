@@ -1,13 +1,13 @@
 # Sanket Keni 
 '''
-CV score for class toxic is 0.97531893271232
-CV score for class severe_toxic is 0.9882911811070457
-CV score for class obscene is 0.9918359359724859
-CV score for class threat is 0.9871264302579318
-CV score for class insult is 0.9805883409571478
-CV score for class identity_hate is 0.9810203713351426
-Total CV score is 0.984030198723679
-Public LB - 0.9779
+CV score for class toxic is 0.9758815956729977
+CV score for class severe_toxic is 0.9885067270242905
+CV score for class obscene is 0.9919493883065732
+CV score for class threat is 0.9866684407022007
+CV score for class insult is 0.9806593278329583
+CV score for class identity_hate is 0.981040742648163
+Total CV score is 0.9841177036978639
+Public LB - 0.9787
 '''
 import numpy as np
 import pandas as pd
@@ -20,58 +20,38 @@ from sklearn.model_selection import cross_val_score
 from scipy.sparse import hstack
 import timeit
 import re
+stemmer = nltk.stem.snowball.SnowballStemmer('english')
+
 ############### send notification on smartphone
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 url = 'https://www.pushsafer.com/api' # Set destination URL here
 post_fields = {                       # Set POST fields here
 	"t" : "Python code execution complete",
-	"m" : "task finished",
+	"m" : "task finished" + str(k),
 	"d" : "a",
 	"u" : url,
-	"k" : "***********"
+	"k" : "*************"
 	}
 def notify():
     request = Request(url, urlencode(post_fields).encode())
     json = urlopen(request).read().decode()
     print(json)
-#stemmer = nltk.stem.snowball.SnowballStemmer('english')
+
 
 # notify when code has completed execution
 def audio():
-    playsound('C:\\Users\\Sanket Keni\\Music\\gang.mp3')
-'''
-def clean(comment):
-    comment=comment.lower()
-    comment=re.sub("\\n"," ",comment)
-    comment=re.sub("\d{1,}","",comment)
-    comment=re.sub("\(.*?\)","",comment)
-    comment=re.sub("\"|:|@|,|\/|\=|;|\.|\'|\?|\!|\||\+|\~|\-|\#"," ",comment)
-    comment=re.sub("\.{1,}",".",comment)
-    comment=re.sub("\[.*?\]","",comment)
-    comment=re.sub("www\S+","",comment)
-    comment=re.sub("\_"," ",comment)
-    comment=re.sub("http","",comment)
-    comment=re.sub("\s+"," ",comment)
-    return comment
+    playsound('C:\\Users\\Sanket Keni\\Music\\notification.mp3')
 
-def stem_and_stopword_filter(text, filter_list):    
-    return [stemmer.stem(word) for word in text.split() if word not in filter_list and len(word) > 2]
-
-stopwords = nltk.corpus.stopwords.words('english') + ['jmabel','chatspy','jpg','wikipedia','www']
-
-def stemmed(text):
-    words = stem_and_stopword_filter(text, stopwords)
-    clean_text=" ".join(words)
-    return clean_text    '''
 
 train = pd.read_csv('C:\\Users\\Sanket Keni\\Desktop\\Genesis\\toxic comment\\train.csv').fillna(' ')
 test = pd.read_csv('C:\\Users\\Sanket Keni\\Desktop\\Genesis\\toxic comment\\test.csv').fillna(' ')
 '''
 train['comment_text']=train['comment_text'].apply(lambda x :clean(x))
 test['comment_text']=test['comment_text'].apply(lambda x :clean(x))
-
 '''
+
+
 
 
 
@@ -81,7 +61,7 @@ def cleaned(comment):
     comment=re.sub("\d{1,}","",comment)
     comment=re.sub("\.{1,}",".",comment)
     comment=re.sub("\:{1,}","",comment)
-    comment=re.sub("\;|\=|\%|\^"," ",comment)
+    comment=re.sub("\;|\=|\%|\^|\_"," ",comment)
     comment=re.sub("\""," ",comment)
     comment=re.sub("\'{2,}","",comment)
     comment=re.sub("\/|\!"," ",comment)
@@ -99,33 +79,17 @@ def cleaned(comment):
     comment=re.sub("www\S+","",comment)
     comment=re.sub("\_"," ",comment)
     comment=re.sub("http","",comment)'''
+    comment=re.sub(r'[^\x00-\x7F]+',' ', comment) # remove non ascii
     comment=re.sub("\s+"," ",comment)
-    comment = ' '.join( [w for w in comment.split() if len(w)>1] )
+    comment = ' '.join( [w for w in comment.split() if len(w)>1])
+    comment = ' '.join( [stemmer.stem(w) for w in comment.split()])
     comment = comment.strip()
     return comment
 
-'''
-l = list(train['comment_text'])
-
-l[:50]
-s = train['comment_text'][159160]
-re.sub("\/"," ",s)
-
-d = "t kwh m^ peaking. "
-re.sub("\;|\=|\%|\^"," ",d)
-re.sub("http","",s)
-'''
-'''
-s = ' '.join( [w for w in s.split() if len(w)>1] )
-
-cleaned(s)
-df=train["comment_text"].apply(lambda x: len(re.findall("\[.*?\]",str(x)))+1)
-
-'''
 
 train['comment_text']=train['comment_text'].apply(lambda x :cleaned(x))
 test['comment_text']=test['comment_text'].apply(lambda x :cleaned(x))
-
+audio()
 
 class_names = ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']
 
@@ -133,6 +97,11 @@ class_names = ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity
 train_text = train['comment_text']
 test_text = test['comment_text']
 all_text = pd.concat([train_text, test_text])
+'''
+stopwords = nltk.corpus.stopwords.words('english')
+mystopwords = "aa abc"
+'''
+
 
 word_vectorizer = TfidfVectorizer(
     sublinear_tf=True,
@@ -157,7 +126,10 @@ char_vectorizer = TfidfVectorizer(
 char_vectorizer.fit(all_text)
 train_char_features = char_vectorizer.transform(train_text)
 test_char_features = char_vectorizer.transform(test_text)
-notify()
+audio()
+
+
+
 
 train_features = hstack([train_char_features, train_word_features])
 test_features = hstack([test_char_features, test_word_features])
@@ -204,6 +176,6 @@ for class_name in class_names:
         submission[class_name] = classifier.predict(test_features)
 
 print('Total CV score is {}'.format(np.mean(scores)))
-notify()
-submission.to_csv('C:\\Users\\Sanket Keni\\Desktop\\Genesis\\toxic comment\\out.csv', index=False)
 audio()
+#notify()
+submission.to_csv('C:\\Users\\Sanket Keni\\Desktop\\Genesis\\toxic comment\\out.csv', index=False)
