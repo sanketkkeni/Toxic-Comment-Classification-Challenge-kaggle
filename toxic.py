@@ -7,7 +7,7 @@ CV score for class threat is 0.9866684407022007
 CV score for class insult is 0.9806593278329583
 CV score for class identity_hate is 0.981040742648163
 Total CV score is 0.9841177036978639
-Public LB - 0.9787
+Public LB - 0.9788
 '''
 import numpy as np
 import pandas as pd
@@ -46,21 +46,14 @@ def audio():
 
 train = pd.read_csv('C:\\Users\\Sanket Keni\\Desktop\\Genesis\\toxic comment\\train.csv').fillna(' ')
 test = pd.read_csv('C:\\Users\\Sanket Keni\\Desktop\\Genesis\\toxic comment\\test.csv').fillna(' ')
-'''
-train['comment_text']=train['comment_text'].apply(lambda x :clean(x))
-test['comment_text']=test['comment_text'].apply(lambda x :clean(x))
-'''
-
-
-
 
 
 def cleaned(comment):
     comment=comment.lower()
     comment=re.sub("\\n"," ",comment)
-    comment=re.sub("\d{1,}","",comment)
+    comment=re.sub("\d{1,}"," ",comment)
     comment=re.sub("\.{1,}",".",comment)
-    comment=re.sub("\:{1,}","",comment)
+    comment=re.sub("\:{1,}"," ",comment)
     comment=re.sub("\;|\=|\%|\^|\_"," ",comment)
     comment=re.sub("\""," ",comment)
     comment=re.sub("\'{2,}","",comment)
@@ -73,12 +66,6 @@ def cleaned(comment):
     comment=re.sub("\S*wikip\S+","",comment)               
     comment=re.sub("\[.*?\]"," ",comment)
     comment=re.sub("\-"," ",comment)
-    '''comment=re.sub("\"|:|@|,|\/|\=|;|\.|\'|\?|\!|\||\+|\~|\-|\#"," ",comment)
-    comment=re.sub("\.{1,}",".",comment)
-    comment=re.sub("\[.*?\]","",comment)
-    comment=re.sub("www\S+","",comment)
-    comment=re.sub("\_"," ",comment)
-    comment=re.sub("http","",comment)'''
     comment=re.sub(r'[^\x00-\x7F]+',' ', comment) # remove non ascii
     comment=re.sub("\s+"," ",comment)
     comment = ' '.join( [w for w in comment.split() if len(w)>1])
@@ -86,10 +73,9 @@ def cleaned(comment):
     comment = comment.strip()
     return comment
 
-
 train['comment_text']=train['comment_text'].apply(lambda x :cleaned(x))
 test['comment_text']=test['comment_text'].apply(lambda x :cleaned(x))
-audio()
+#audio()
 
 class_names = ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']
 
@@ -97,11 +83,6 @@ class_names = ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity
 train_text = train['comment_text']
 test_text = test['comment_text']
 all_text = pd.concat([train_text, test_text])
-'''
-stopwords = nltk.corpus.stopwords.words('english')
-mystopwords = "aa abc"
-'''
-
 
 word_vectorizer = TfidfVectorizer(
     sublinear_tf=True,
@@ -126,10 +107,7 @@ char_vectorizer = TfidfVectorizer(
 char_vectorizer.fit(all_text)
 train_char_features = char_vectorizer.transform(train_text)
 test_char_features = char_vectorizer.transform(test_text)
-audio()
-
-
-
+#audio()
 
 train_features = hstack([train_char_features, train_word_features])
 test_features = hstack([test_char_features, test_word_features])
@@ -173,9 +151,15 @@ for class_name in class_names:
         scores.append(cv_score)
         print('CV score for class {} is {}'.format(class_name, cv_score))
         classifier.fit(train_features, train_target)
-        submission[class_name] = classifier.predict(test_features)
+        pedicted = classifier.predict(test_features)        
+        for index,i in enumerate(predicted):
+            if(i>1):
+                predicted[index] = 1
+            elif(i<0):
+                predicted[index] = 0
+        submission[class_name] = predicted
 
 print('Total CV score is {}'.format(np.mean(scores)))
-audio()
+#audio()
 #notify()
 submission.to_csv('C:\\Users\\Sanket Keni\\Desktop\\Genesis\\toxic comment\\out.csv', index=False)
