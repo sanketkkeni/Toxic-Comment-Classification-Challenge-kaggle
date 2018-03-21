@@ -160,7 +160,7 @@ word_vectorizer = TfidfVectorizer(
     token_pattern=r'\w{1,}',
     stop_words='english',
     ngram_range=(1, 1),
-    max_features=14000)
+    max_features=5000) # Around 12000 gives good result for "toxic"
 word_vectorizer.fit(all_text)
 train_word_features = word_vectorizer.transform(train_text)
 test_word_features = word_vectorizer.transform(test_text)
@@ -172,7 +172,7 @@ char_vectorizer = TfidfVectorizer(
     analyzer='char',
     stop_words='english',
     ngram_range=(2, 3),
-    max_features=4000)
+    max_features=5000)
 char_vectorizer.fit(all_text)
 train_char_features = char_vectorizer.transform(train_text)
 test_char_features = char_vectorizer.transform(test_text)
